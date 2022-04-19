@@ -4,41 +4,73 @@ const urlParams = new URLSearchParams(window.location.search);
 const paramID = urlParams.get("id");
 // console.log(paramID);
 
+var tabInfoProduit = [];
+
 // appel API pour récupérer les donnes du produit choisi 
-async function affichProduit(){
-    await fetch(`http://localhost:3000/api/products/${paramID}`)
+function afficherProduit(){
+    fetch(`http://localhost:3000/api/products/${paramID}`)
     .then((reponse) => {
         return reponse.json();
     })
-    // affichage des informations du produit récupéré
-    .then((infoProduct)=> {         
-        console.log(infoProduct);
-        
-        let divImage = document.querySelector(".item__img");
-        divImage.innerHTML = `<img src="${infoProduct.imageUrl}" alt="${infoProduct.description}">`;
-        document.querySelector('#title').textContent = `${infoProduct.name}`;
-        document.querySelector('#price').textContent = `${infoProduct.price}`;
-        document.querySelector('#description').textContent = `${infoProduct.description}`;
-        
-        // console.log(infoProduct.colors);
 
-        let optionCouleur = infoProduct.colors.map((couleur) => {
+    // affichage des informations du produit récupéré
+    .then((infoProduct)=> { 
+        
+      //récupération dans le tableau les infos retournés par l'API
+        tabInfoProduit = infoProduct;      
+
+        let divImage = document.querySelector(".item__img");
+        divImage.innerHTML = `<img src="${tabInfoProduit.imageUrl}" alt="${tabInfoProduit.description}">`;
+        document.querySelector('#title').textContent = `${tabInfoProduit.name}`;
+        document.querySelector('#price').textContent = `${tabInfoProduit.price}`;
+        document.querySelector('#description').textContent = `${tabInfoProduit.description}`;
+        
+        // console.log(tabInfoProduit.colors);
+
+        let optionsCouleur = tabInfoProduit.colors.map((couleur) => {
             // console.log(couleur);
             return `<option value="${couleur}">${couleur}</option>`;   
         })
-                
-        document.querySelector('#colors').innerHTML = optionCouleur;
+        
+        let selectCouleur = document.querySelector('#colors');
+
+        selectCouleur.innerHTML = '<option value="">--SVP, choisissez une couleur --</option>' + optionsCouleur.join("");
     })
     .catch((erreur) => {
         console.log(erreur);
-        var erreur = document.querySelector('.item').innerHTML = "Erreur serveur :(";       
-    })
+        document.querySelector('.item').innerHTML = 'Erreur serveur :(';       
+    });
 }
-affichProduit();
+afficherProduit();
 
-// ajout des produits ans le panier
-let btnPanier = document.querySelector("#addToCart");
 
-btnPanier.addEventListener("click", function() {
 
+// ajout des produits dans le panier
+let btnAjout = document.querySelector("#addToCart");
+  
+btnAjout.addEventListener('click', () => {
+
+  //récupération de la couleur du produit choisi
+    let selectCouleur = document.querySelector('#colors');
+    let selectQuantite = document.querySelector('#quantity');
+    // console.log(selectCouleur);
+
+ //variable qui va récupérer le contenu du 'localStorage' 
+    let tabProduitsChoisis = JSON.parse(localStorage.getItem("produit"));
+
+ //Rajout des propriétés (clé: valeur) a l'objet éxistant(produit choisi)
+    const choixProduit = Object.assign({}, tabInfoProduit, {
+        couleur: `${selectCouleur.value}`,
+        quantite: `${selectQuantite.value}`
+    });
+    console.log(choixProduit);
+
+    if(tabProduitsChoisis === null){
+        tabProduitsChoisis = [];    
+    }
+    tabProduitsChoisis.push(choixProduit);
+
+    //stockage en local du nouveau tableau (avec 2 valeurs en plus)
+    localStorage.setItem("produit", JSON.stringify(tabProduitsChoisis));
+    console.log(tabProduitsChoisis);
 });
