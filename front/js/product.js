@@ -4,7 +4,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const paramID = urlParams.get("id");
 // console.log(paramID);
 
-var tabInfoProduit = [];
+let tabInfoProduit = [];
 
 // appel API pour récupérer les donnes du produit choisi 
 function afficherProduit(){
@@ -43,34 +43,77 @@ function afficherProduit(){
 }
 afficherProduit();
 
+// function permettant d'ajouter un produit das LocalStorage/panier
+function ajoutProduit() {
 
+    let btnAjout = document.querySelector("#addToCart");
 
-// ajout des produits dans le panier
-let btnAjout = document.querySelector("#addToCart");
-  
-btnAjout.addEventListener('click', () => {
+    btnAjout.addEventListener('click', () => {
 
-  //récupération de la couleur du produit choisi
-    let selectCouleur = document.querySelector('#colors');
-    let selectQuantite = document.querySelector('#quantity');
-    // console.log(selectCouleur);
+     //récupération de la couleur du produit choisi
+        let selectCouleur = document.querySelector('#colors');
+        let selectQuantite = document.querySelector('#quantity');
+        // console.log(selectCouleur);
 
- //variable qui va récupérer le contenu du 'localStorage' 
-    let tabProduitsChoisis = JSON.parse(localStorage.getItem("produit"));
+      //variable qui va récupérer le contenu du 'localStorage' 
+        let tabProduitsChoisis = JSON.parse(localStorage.getItem("produit"));
 
- //Rajout des propriétés (clé: valeur) a l'objet éxistant(produit choisi)
-    const choixProduit = Object.assign({}, tabInfoProduit, {
-        couleur: `${selectCouleur.value}`,
-        quantite: `${selectQuantite.value}`
+     //Rajout des propriétés (clé: valeur) a l'objet éxistant(tabInfoProduit)
+        const choixProduit = Object.assign({}, tabInfoProduit, {
+            couleur: `${selectCouleur.value}`,
+            quantite: `${selectQuantite.value}`
+        });
+        // console.log(choixProduit);
+
+        if(tabProduitsChoisis === null){
+            tabProduitsChoisis = []; 
+            tabProduitsChoisis.push(choixProduit);
+            
+         //stockage en local du nouveau tableau (avec 2 valeurs en plus)
+            localStorage.setItem("produit", JSON.stringify(tabProduitsChoisis));
+            console.log(tabProduitsChoisis); 
+        
+        } else if (tabProduitsChoisis != null) {                //s'il y a des produits
+            for( i = 0; i < tabProduitsChoisis.length; i++){   //on parcours le tableau
+                console.log("test");
+              //1 - on va comparer si le produit de LocalStorage est le même que le produit
+              // récupéré depuis l'API et on verifie l'ID et la couleur
+                if(tabProduitsChoisis[i]._id === tabInfoProduit._id && 
+                    tabProduitsChoisis[i].couleur === selectCouleur.value ) {                   
+                               
+                    return(
+                     //on increment la quantité, vu que c'est le même produit
+                        tabProduitsChoisis[i].quantite++,  
+                        console.log("quantite ++"),
+                      // on va rajouter la modification dans LocalStorage
+                        localStorage.setItem("produit", JSON.stringify(tabProduitsChoisis)),
+                      //et on récupère le nouveau tableau mis a jour 
+                        tabProduitsChoisis = JSON.parse(localStorage.getItem("produit"))
+                    );
+                } 
+            }
+
+          //2- on va verifier si c'est le même produit, mais d'une autre couleur ou un autre produit  
+            for( i = 0; i < tabProduitsChoisis.length; i++){ 
+                
+                if(tabProduitsChoisis[i]._id === tabInfoProduit._id &&         
+                    tabProduitsChoisis[i].couleur != selectCouleur.value ||
+                    tabProduitsChoisis[i]._id != tabInfoProduit._id) {                  
+                
+                    return (
+                        console.log("nouveau"),
+                      //on va rajouter le nouveau produit, d'une autre couleur, dans la liste
+                        tabProduitsChoisis.push(choixProduit),
+                      //et on va mettre a jour le Local Storage 
+                        localStorage.setItem("produit", JSON.stringify(tabProduitsChoisis)),
+                      //et on récupère le nouveau tableau mis a jour 
+                        tabProduitsChoisis = JSON.parse(localStorage.getItem("produit"))
+                    );
+                }        
+            }
+        } 
     });
-    console.log(choixProduit);
-
-    if(tabProduitsChoisis === null){
-        tabProduitsChoisis = [];    
-    }
-    tabProduitsChoisis.push(choixProduit);
-
-    //stockage en local du nouveau tableau (avec 2 valeurs en plus)
-    localStorage.setItem("produit", JSON.stringify(tabProduitsChoisis));
-    console.log(tabProduitsChoisis);
-});
+  //retun le tableau contenant les produit choisis, stokés dans LocalStorage 
+    return (tabProduitsChoisis = JSON.parse(localStorage.getItem("produit")));
+}
+console.log(ajoutProduit());   

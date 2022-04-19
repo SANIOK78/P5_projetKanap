@@ -1,20 +1,21 @@
 // Récuperation des donées dans localStorage
-let affichProduit = JSON.parse(localStorage.getItem("produit"));
+let afficherProduit = JSON.parse(localStorage.getItem("produit"));
 
-// console.log(affichProduit);
+// console.log(afficherProduit);
 
 async function afficherPanier() {
 
-    if(affichProduit){
-        await affichProduit;
+    if(afficherProduit){
+        await afficherProduit;
+        // console.log(afficherProduit); 
 
      //variable stockant les modifications du tableau de localStorage
         let produitPanier =  document.querySelector("#cart__items");
         // let totalProduits = document.querySelector("#cart__price");
         let nbProduit = 0;
-        let totalPrix =0;
+        let totalPrix = 0;
 
-        produitPanier.innerHTML = affichProduit.map((product) => {
+        produitPanier.innerHTML = afficherProduit.map((product) => {
 
             nbProduit += parseInt(product.quantite);
             totalPrix += parseInt(product.quantite) * parseInt(product.price);
@@ -40,12 +41,22 @@ async function afficherPanier() {
                     </div>
                 </div>
             </article>`  
-
-                     
+                    
         }).join("");
+
         document.querySelector("#totalQuantity").innerHTML = nbProduit;
         document.querySelector("#totalPrice").innerHTML = totalPrix;
                
-    } 
+    }  
 }
 afficherPanier();
+
+// fonction permettant de modifier dynamiquement un produit directement dans le Panier
+async function modifierQuantite() {
+    
+    console.log("augmantation quantite");
+
+    let inputQuantite = document.querySelector(".itemQuantity");
+    // inputQuantite.addEventListener("change", )
+}
+modifierQuantite();
