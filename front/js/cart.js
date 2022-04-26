@@ -1,26 +1,23 @@
 // Récuperation des donées dans localStorage
-let afficherProduit = JSON.parse(localStorage.getItem("produit"));
+let recupProduit = JSON.parse(localStorage.getItem("produit"));
 
-// console.log(afficherProduit);
+console.log(recupProduit);
 
-async function afficherPanier() {
+function afficherPanier() {
 
-    if(afficherProduit){
-        await afficherProduit;
-        // console.log(afficherProduit); 
+    if(recupProduit){       
+        // console.log(recupProduit); 
 
      //variable stockant les modifications du tableau de localStorage
-        let produitPanier =  document.querySelector("#cart__items");
-        // let totalProduits = document.querySelector("#cart__price");
+        let produitPanier = document.querySelector("#cart__items");
         let nbProduit = 0;
         let totalPrix = 0;
 
-        produitPanier.innerHTML = afficherProduit.map((product) => {
+        produitPanier.innerHTML = recupProduit.map((product) => {
+            nbProduit = nbProduit + parseInt(product.quantite);
+            totalPrix = totalPrix + (parseInt(product.quantite) * parseInt(product.price));
 
-            nbProduit += parseInt(product.quantite);
-            totalPrix += parseInt(product.quantite) * parseInt(product.price);
-
-            return   `<article class="cart__item" data-id="${product._id}" data-color="${product.colors}">
+            return `<article class="cart__item" data-id="${product._id}" data-color="${product.colors}">
                 <div class="cart__item__img">
                     <img src="${product.imageUrl}" alt="${product.description}">
                 </div>
@@ -39,24 +36,33 @@ async function afficherPanier() {
                             <p class="deleteItem">Supprimer</p>
                         </div>
                     </div>
-                </div>
+                </div>   
             </article>`  
                     
         }).join("");
 
         document.querySelector("#totalQuantity").innerHTML = nbProduit;
-        document.querySelector("#totalPrice").innerHTML = totalPrix;
-               
+        document.querySelector("#totalPrice").innerHTML = totalPrix;              
     }  
 }
 afficherPanier();
 
-// fonction permettant de modifier dynamiquement un produit directement dans le Panier
-async function modifierQuantite() {
-    
-    console.log("augmantation quantite");
 
-    let inputQuantite = document.querySelector(".itemQuantity");
-    // inputQuantite.addEventListener("change", )
+// fonction permettant de modifier dynamiquement un produit directement dans le Panier
+function modifierQuantite() {
+    const inputs = document.querySelectorAll("input[name='itemQuantity']");
+       
+    inputs.forEach((input, index) => {
+       
+        input.addEventListener("change", function(event) {     
+               
+            recupProduit[index].quantite = event.target.value;
+            localStorage.setItem("produit", JSON.stringify(recupProduit));
+            // console.log(recupProduit[i]); 
+            // console.log(index); 
+            afficherPanier(); 
+            modifierQuantite();                                     
+        });  
+    });     
 }
 modifierQuantite();
