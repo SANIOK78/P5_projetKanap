@@ -1,19 +1,19 @@
 // Récuperation des donées dans localStorage
-let recupProduit = JSON.parse(localStorage.getItem("produit"));
+let panier = JSON.parse(localStorage.getItem("produit"));
 
-console.log(recupProduit);
+// console.log(panier);
 
 function afficherPanier() {
 
-    if(recupProduit){       
-        // console.log(recupProduit); 
+    if(panier){       
+        console.log(panier); 
 
      //variable stockant les modifications du tableau de localStorage
         let produitPanier = document.querySelector("#cart__items");
         let nbProduit = 0;
         let totalPrix = 0;
 
-        produitPanier.innerHTML = recupProduit.map((product) => {
+        produitPanier.innerHTML = panier.map((product) => {
             nbProduit = nbProduit + parseInt(product.quantite);
             totalPrix = totalPrix + (parseInt(product.quantite) * parseInt(product.price));
 
@@ -56,9 +56,9 @@ function modifierQuantite() {
        
         input.addEventListener("change", function(event) {     
                
-            recupProduit[index].quantite = event.target.value;
-            localStorage.setItem("produit", JSON.stringify(recupProduit));
-            // console.log(recupProduit[i]); 
+            panier[index].quantite = event.target.value;
+            localStorage.setItem("produit", JSON.stringify(panier));
+           
             // console.log(index); 
             afficherPanier(); 
             modifierQuantite();                                     
@@ -66,3 +66,32 @@ function modifierQuantite() {
     });     
 }
 modifierQuantite();
+
+// fonction permetant la suppression d'un produit
+function suppressionProduit(meuble) {
+    let supprimProdiut = document.querySelectorAll(".deleteItem");
+    // console.log(supprimProdiut);
+    console.log(panier.length);
+
+    supprimProdiut.forEach((input, index) => {
+
+        input.addEventListener("click", () => {
+            // console.log(input)
+            confirm("Voulez-vous vraiment supprimer ce produit ?"),
+            panier.splice(index, 1);            
+            localStorage.setItem("produit", JSON.stringify(panier));            
+            afficherPanier();
+            document.location.reload(); 
+            // console.log(panier);                          
+        });                
+    }); 
+
+    if(panier.length === 0 ) {
+        // console.log("Panier vide")
+        return (
+            localStorage.clear(),
+            document.querySelector("h1").textContent = "Votre panier est vide !"
+        )              
+    }         
+} 
+suppressionProduit();

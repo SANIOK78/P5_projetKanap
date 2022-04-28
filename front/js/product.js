@@ -53,6 +53,7 @@ function ajoutProduit() {
     //récupération de la couleur du produit choisi
     let selectCouleur = document.querySelector('#colors');
     let selectQuantite = document.querySelector('#quantity');
+    
     //variable qui va récupérer le contenu du 'localStorage' 
     let tabProduitsChoisis = JSON.parse(localStorage.getItem("produit"));
 
@@ -61,7 +62,7 @@ function ajoutProduit() {
       couleur: `${selectCouleur.value}`,
       quantite: `${selectQuantite.value}`
     });
-    // console.log(choixProduit);
+    console.log(choixProduit);
 
     if (tabProduitsChoisis === null) {
       tabProduitsChoisis = [];
