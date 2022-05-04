@@ -12,7 +12,7 @@ async function getProducts() {
 
    //affichage des données récupérés
     .then((infoProduits) => {
-        console.log(infoProduits);
+        // console.log(infoProduits);
 
         const html = infoProduits.map((product) => {
             

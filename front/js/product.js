@@ -64,7 +64,7 @@ function ajoutProduit() {
     });
     console.log(choixProduit);
 
-    if (tabProduitsChoisis === null) {
+    if (tabProduitsChoisis === null || tabProduitsChoisis.length < 1) {
       tabProduitsChoisis = [];
       tabProduitsChoisis.push(choixProduit);
 
@@ -72,7 +72,7 @@ function ajoutProduit() {
       localStorage.setItem("produit", JSON.stringify(tabProduitsChoisis));
       console.log(tabProduitsChoisis);
 
-    } else if (tabProduitsChoisis != null) {                //s'il y a des produits
+    } else {                //s'il y a des produits
       for (i = 0; i < tabProduitsChoisis.length; i++) {   //on parcours le tableau
         //1 - on va comparer si le produit de LocalStorage est le même que le produit
         // récupéré depuis l'API et on verifie l'ID et la couleur
