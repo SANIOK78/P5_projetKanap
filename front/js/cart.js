@@ -89,8 +89,7 @@ function suppressionProduit() {
     if(panier === null || panier.length === 0 ) {
         // console.log("Panier vide")       
         localStorage.removeItem("produit");
-        document.querySelector("h1").textContent = "Votre panier est vide !"
-                    
+        document.querySelector("h1").textContent = "Votre panier est vide !"                    
     }       
 } 
 
@@ -110,7 +109,6 @@ let nom = document.querySelector("#lastName");
 let adresse = document.querySelector("#address");
 let ville = document.querySelector("#city");
 let email = document.querySelector("#email");
-// let formSubmit = document.querySelector("#order");
 
 
 // function permettant verifier Prenom, Nom, Ville
@@ -131,27 +129,26 @@ function verifAdresse(adresse) {
 function formVerify(){
     // validation champ 'prenom'
     prenom.addEventListener('change', () => {
-
+        const prenomResultat = document.querySelector("#firstNameErrorMsg");
         //tester si la valeur de 'prenom' contient que des lettres, 
         // la taille de 3 - 20 caractères, pas des chiffres et syboles speciaux
         if(verifNomPrenomVille(prenom.value)){
-            // console.log('ok');
-            return true;            
-        } else {
-            let prenomResultat = document.querySelector("#firstNameErrorMsg");
+            prenomResultat.innerHTML = "";
+            return true; 
+
+        } else {            
             prenomResultat.innerHTML = "Chiffre et symbole non autorisé, entre 3 - 20 lettres";
             return false;
-        }
+        }      
     });
 
     // validation champ 'nom'
     nom.addEventListener('change', () => {
-
+        const nomResultat = document.querySelector("#lastNameErrorMsg");
         if(verifNomPrenomVille(nom.value)){
-            // console.log('ok');  
+            nomResultat.innerHTML = "";  
             return true;             
-        } else {
-            let nomResultat = document.querySelector("#lastNameErrorMsg");
+        } else {            
             nomResultat.innerHTML = "Chiffre et symbole non autorisé, entre 3 - 20 lettres";
             return false;
         }
@@ -159,26 +156,25 @@ function formVerify(){
 
     // validation champ 'adresse'
     adresse.addEventListener("change", () => {
-        let adresseResultat = document.querySelector("#addressErrorMsg");
+        const adresseResultat = document.querySelector("#addressErrorMsg");
 
         if(verifAdresse(adresse.value)){
-            // console.log('ok'); 
+            adresseResultat.innerHTML = "";
             return true;
         } else {           
-            adresseResultat.innerHTML = "L'adresse doit contenir que des lettres et des chiffres, sans ponctuation";
-            console.log('pas bonne'); 
+            adresseResultat.innerHTML = "L'adresse doit contenir que des lettres et des chiffres, sans ponctuation et caractères spéciaux";
             return false;      
         }
     });
 
     // validation champ 'ville'
     ville.addEventListener('change', () => {
+       const villeResultat = document.querySelector("#cityErrorMsg");
 
         if(verifNomPrenomVille(ville.value)){
-            // console.log('ok');
+            villeResultat.innerHTML = "";
             return true;               
-        } else {
-            let villeResultat = document.querySelector("#cityErrorMsg");
+        } else {            
            villeResultat.innerHTML = "Chiffre et symbole non autorisé, entre 3 - 20 lettres";
             return false;
         }
@@ -186,58 +182,87 @@ function formVerify(){
 
     // validation champ 'email'
     email.addEventListener("change", () => {
+        const mailResultat = document.querySelector("#emailErrorMsg");
+
         if(verifMail(email.value)){
-            // console.log('ok'); 
+            mailResultat.innerHTML = "";
             return true;              
-        } else {
-            let mailResultat = document.querySelector("#emailErrorMsg");
-            mailResultat.innerHTML = "Email format non valide";
+        } else {            
+            mailResultat.innerHTML = "Email format non valide (ex: toto@mail.dev)";
             return false;
         } 
-    })
+    });
 }
 formVerify();
 
 // --------- fin Gestion Validation du formulaire -----------
 
-// *********** Soumition du formulaire ***********
+// *********** VALIDATION DE LA COMMANDE ***********
 let formSubmit = document.querySelector("#order");
 
-formSubmit.addEventListener('click', () =>{
+// Création d'un tableau contenant que les 'id' des produits commandés
+function creationCommandeId(panier) {
+    const produitsPanierId = [];
 
-  //Création d'un objet a partir des valeurs du formulaire
-    let valeursForm = {
-        prenom : document.querySelector("#firstName").value,
-        nom : document.querySelector("#lastName").value,
-        adresse : document.querySelector("#address").value,
-        ville : document.querySelector("#city").value,
-        email : document.querySelector("#email").value
+    for(produit of panier){
+        produitsPanierId.push(produit._id)
     }
-    // console.log(valeursForm);
- 
-  //Mettre l'objet "valeurForm" dans local Storage
-    localStorage.setItem('valeursForm', JSON.stringify(valeursForm));
-    
-  // Mettre les produits séléctionnés et les valeur du formulaire dans un objet à
-  //envoyer vers le serveur
-    const contact = {
-        panier,
-        valeursForm
-    }
-    console.log(contact);
+    return produitsPanierId
+}
+
+// Création d'un objet contenat les produits séléctionnés et les valeurs 
+// du formulaire pour les envoyer au serveur
+function infosVersServer(produitsPanierId) {
+    return  {
+     //Création objet a partir des valeurs du formulaire
+        contact: {
+            firstName : firstName.value,
+            lastName : lastName.value,
+            address : address.value,
+            city : city.value,
+            email : email.value
+        },
+        products : produitsPanierId
+    }       
+}
+
+// Soumission du formulaire 
+formSubmit.addEventListener('click', (e) => {
+    e.preventDefault();
+
+    const produitsPanierId = creationCommandeId(panier)
+    const infosServer = infosVersServer(produitsPanierId);
+    console.log(JSON.stringify(infosServer));
+
+ //Requête POST (Envoie de l'objet 'order') vers le serveur
+    // if(formVerify()  && panier.length != 0) {
+        fetch("http://localhost:3000/api/products/order", {
+            method: "POST",
+            body: JSON.stringify(infosServer),
+            headers: {
+                // "Accept" :  "application/json",
+                "Content-Type": "application/json"
+            },
+        })  
+        .then( response => {
+            if(response.ok) {
+                return response.json()
+            }
+        })
+        // Reinitialiser localStorage et rediriger vers confirmation.html
+        .then( data => {
+            // localStorage.clear()
+            console.log(data.orderId)
+            document.location.href = `confirmation.html?orderId=${data.orderId}`
+       
+        })
+        .catch( error => {
+            console.log(error.message);
+        })
+    // }  
 });
 
 //  ---------------- FIN Soumition du formulaire ----------------
  
-// *********** Mettre le contenu du Local Storage dans les champs du formulaire ********
-// Récupérer la clé de LocalStorage dans une variable
 
-const dataLocalStorage = JSON.parse(localStorage.getItem("valeursForm"));
-console.log(dataLocalStorage);
 
-// Mettre les valeurs du localStorage dans les champs du formulaire
-document.querySelector("#firstName").setAttribute('value', dataLocalStorage.prenom);
-document.querySelector("#lastName").setAttribute('value', dataLocalStorage.nom);
-document.querySelector("#address").value = dataLocalStorage.adresse;
-document.querySelector("#city").value = dataLocalStorage.ville;
-document.querySelector("#email").value = dataLocalStorage.email;

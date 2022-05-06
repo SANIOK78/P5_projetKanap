@@ -1,7 +1,7 @@
 // appel de l'API
 
-async function getProducts() {
-   await fetch("http://localhost:3000/api/products")
+function getProducts() {
+   fetch("http://localhost:3000/api/products")
 
   //récupération des données en json
     .then((reponse) => {
