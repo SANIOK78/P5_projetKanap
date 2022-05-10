@@ -234,8 +234,8 @@ formSubmit.addEventListener('click', (e) => {
     const infosServer = infosVersServer(produitsPanierId);
     console.log(JSON.stringify(infosServer));
 
- //Requête POST (Envoie de l'objet 'order') vers le serveur
-    // if(formVerify()  && panier.length != 0) {
+ //Envoie des informatios à l'API 
+    if( formVerify() && panier.length != 0 ) {  
         fetch("http://localhost:3000/api/products/order", {
             method: "POST",
             body: JSON.stringify(infosServer),
@@ -251,15 +251,17 @@ formSubmit.addEventListener('click', (e) => {
         })
         // Reinitialiser localStorage et rediriger vers confirmation.html
         .then( data => {
-            // localStorage.clear()
-            console.log(data.orderId)
-            document.location.href = `confirmation.html?orderId=${data.orderId}`
-       
+            localStorage.clear();
+            console.log(data.orderId);
+            document.location.href = `confirmation.html?orderId=${data.orderId}`       
         })
         .catch( error => {
             console.log(error.message);
         })
-    // }  
+    } else {
+        console.log("panier vide");
+        alert("Veillez remplir correctement le formulaire avant de passer la commande.");            
+    } 
 });
 
 //  ---------------- FIN Soumition du formulaire ----------------
