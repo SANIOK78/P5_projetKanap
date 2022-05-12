@@ -4,6 +4,8 @@ let panier = JSON.parse(localStorage.getItem("produit"));
 // console.log(panier);
 
 // ********** Gestion du panier ************
+let totalQuantity = document.querySelector("#totalQuantity");
+let totalPrice = document.querySelector("#totalPrice");
 
 function afficherPanier() {
 
@@ -43,8 +45,8 @@ function afficherPanier() {
                     
         }).join("");
 
-        document.querySelector("#totalQuantity").innerHTML = nbProduit;
-        document.querySelector("#totalPrice").innerHTML = totalPrix;              
+        totalQuantity.innerHTML = nbProduit;
+        totalPrice.innerHTML = totalPrix;              
     }
 
 }
@@ -135,7 +137,6 @@ function formVerify(){
         if(verifNomPrenomVille(prenom.value)){
             prenomResultat.innerHTML = "";
             return true; 
-
         } else {            
             prenomResultat.innerHTML = "Chiffre et symbole non autorisé, entre 3 - 20 lettres";
             return false;
@@ -175,7 +176,7 @@ function formVerify(){
             villeResultat.innerHTML = "";
             return true;               
         } else {            
-           villeResultat.innerHTML = "Chiffre et symbole non autorisé, entre 3 - 20 lettres";
+            villeResultat.innerHTML = "Chiffre et symbole non autorisé, entre 3 - 20 lettres";
             return false;
         }
     });
@@ -194,7 +195,6 @@ function formVerify(){
     });
 }
 formVerify();
-
 // --------- fin Gestion Validation du formulaire -----------
 
 // *********** VALIDATION DE LA COMMANDE ***********
@@ -227,15 +227,17 @@ function infosVersServer(produitsPanierId) {
 }
 
 // Soumission du formulaire 
+
 formSubmit.addEventListener('click', (e) => {
     e.preventDefault();
 
     const produitsPanierId = creationCommandeId(panier)
     const infosServer = infosVersServer(produitsPanierId);
+    const formulaireValid = formVerify();
     console.log(JSON.stringify(infosServer));
-
+  
  //Envoie des informatios à l'API 
-    if( formVerify() && panier.length != 0 ) {  
+    // if(formulaireValid && totalQuantity != 0) {
         fetch("http://localhost:3000/api/products/order", {
             method: "POST",
             body: JSON.stringify(infosServer),
@@ -250,18 +252,17 @@ formSubmit.addEventListener('click', (e) => {
             }
         })
         // Reinitialiser localStorage et rediriger vers confirmation.html
-        .then( data => {
-            localStorage.clear();
-            console.log(data.orderId);
-            document.location.href = `confirmation.html?orderId=${data.orderId}`       
+        .then( data => {  
+            document.location.href = `confirmation.html?orderId=${data.orderId}`;                         
+            console.log(data.orderId);            
+            localStorage.clear();                                                 
         })
         .catch( error => {
             console.log(error.message);
-        })
-    } else {
-        console.log("panier vide");
-        alert("Veillez remplir correctement le formulaire avant de passer la commande.");            
-    } 
+        }) 
+    // } else {
+    //     alert("Formulaire pas remplit ! ");
+    // }  
 });
 
 //  ---------------- FIN Soumition du formulaire ----------------

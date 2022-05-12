@@ -1,6 +1,7 @@
-// appel de l'API
+// function permettant d'afficher les produits
 
 function getProducts() {
+    // requête type GET au service web ce trouvant a cette adresse
    fetch("http://localhost:3000/api/products")
 
   //récupération des données en json
@@ -12,7 +13,7 @@ function getProducts() {
 
    //affichage des données récupérés
     .then((infoProduits) => {
-        // console.log(infoProduits);
+        console.log(infoProduits);
 
         const html = infoProduits.map((product) => {
             
