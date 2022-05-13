@@ -1,10 +1,10 @@
 // function permettant d'afficher les produits
 
 function getProducts() {
-    // requête type GET au service web ce trouvant a cette adresse
+    // requête HTTP type GET a l'@ du service web ou s'execute l'API
    fetch("http://localhost:3000/api/products")
 
-  //récupération des données en json
+  //récupération des données au format json
     .then((reponse) => {
         if(reponse.ok){
             return reponse.json();
@@ -17,7 +17,7 @@ function getProducts() {
 
         const html = infoProduits.map((product) => {
             
-            // injection de l'ID du produit dans la URL => product.html?id=${product._id}
+            // injection de l'ID du produit dans l'URL 
             return `<a href="./product.html?id=${product._id}"> 
                         <article>
                             <img src="${product.imageUrl}" alt="${product.altTxt}">
@@ -32,7 +32,7 @@ function getProducts() {
     })
     .catch((erreur) => {
         console.log(erreur);
-        document.querySelector('#items').innerHTML = "Erreur serveur :( ";
+        document.querySelector('#items').textContent = "Erreur serveur :( ";
     })
 }
 getProducts();

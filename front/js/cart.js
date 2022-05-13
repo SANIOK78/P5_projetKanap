@@ -186,6 +186,22 @@ function formVerify(){
     });
 }
 formVerify();
+
+// function permetant de verifier si le formulaire est rempli a la soumission
+function checkForm() {
+    if(!verifMail(email.value)){
+        return "Email format non valide (ex: toto@mail.dev)";
+    } 
+    if(!verifNomPrenomVille(firstName.value) || !verifNomPrenomVille(lastName.value) || !verifNomPrenomVille(city.value)){
+        return "Chiffre et symbole non autorisé, entre 3 - 20 lettres";
+    }
+   
+    if(!verifAdresse(address.value)){
+        return  "L'adresse doit contenir que des lettres et des chiffres, sans ponctuation et caractères spéciaux";
+    }
+
+    return true;
+}
 // --------- fin Gestion Validation du formulaire -----------
 
 // *********** VALIDATION DE LA COMMANDE ***********
@@ -217,6 +233,7 @@ function infosVersServer(produitsPanierId) {
     }       
 }
 
+
 //*********  Soumission du formulaire ********* 
 let formSubmit = document.querySelector("#order");
 
@@ -225,11 +242,18 @@ formSubmit.addEventListener('click', (e) => {
 
     const produitsPanierId = creationCommandeId(panier)
     const infosServer = infosVersServer(produitsPanierId);
-    const formulaireValid = formVerify();
+    const formulaireValid = checkForm();
   
+    console.log(formulaireValid);
   
  //Envoie des informatios à l'API 
-    // if(formulaireValid && (panier === null || panier.length === 0)) {
+    if(formulaireValid != true) {
+        alert(formulaireValid);
+
+    } else if(panier === null || panier.length === 0){
+        alert("Le panier est vide !");
+    
+    } else {
         fetch("http://localhost:3000/api/products/order", {
             method: "POST",
             body: JSON.stringify(infosServer),
@@ -251,10 +275,8 @@ formSubmit.addEventListener('click', (e) => {
         })
         .catch( error => {
             console.log(error.message);
-        }) 
-    // } else {
-    //     alert("Formulaire pas remplit ! ");
-    // }  
+        })
+    }  
 });
 
 //  ---------------- FIN Soumition du formulaire ----------------
