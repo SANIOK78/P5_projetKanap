@@ -11,8 +11,7 @@ let produitPanier = document.querySelector("#cart__items");
 function afficherPanier() {
 
     if(panier){       
-        // console.log(panier);
-      //Déclaration des variables permettant de mettrea jour la quantité et le prix total   
+        //Déclaration des variables permettant de mettre a jour la quantité et le prix total   
         let nbProduit = 0;
         let totalPrix = 0;
 
@@ -58,11 +57,12 @@ function modifierQuantite() {
 
     quantites.forEach((input, index) => {
        
-        input.addEventListener("change", function(event) {                    
+        input.addEventListener("change", function(event) { 
+
             panier[index].quantite = event.target.value;
             localStorage.setItem("produit", JSON.stringify(panier));
            
-           initPanier();                              
+            initPanier();                              
         });  
     });     
 }
@@ -71,7 +71,7 @@ function modifierQuantite() {
 function suppressionProduit() {
     let supprimProdiut = document.querySelectorAll(".deleteItem");
     // console.log(panier);
-    // console.log(supprimProdiut);
+    console.log(supprimProdiut);
 
     supprimProdiut.forEach((input, index) => {
 
@@ -81,7 +81,7 @@ function suppressionProduit() {
             if(panier.length != 0) {                
                 localStorage.setItem("produit", JSON.stringify(panier));            
                 initPanier(); 
-            } else{
+            } else {
                 localStorage.removeItem("produit");
                 initPanier(); 
                 document.querySelector("h1").innerHTML = "Votre panier est vide !"
@@ -195,7 +195,10 @@ formVerify();
 // function permetant de verifier si le formulaire est rempli avant la soumission
 function checkForm() {
   
-    if(!verifNomPrenomVille(firstName.value) || !verifNomPrenomVille(lastName.value) || !verifNomPrenomVille(city.value)){
+    if(!verifNomPrenomVille(firstName.value) || 
+        !verifNomPrenomVille(lastName.value) || 
+        !verifNomPrenomVille(city.value)){
+
         return "Renseignez les champs: 'Prénom', 'Nom' et 'Ville' !";
     }
    
@@ -214,32 +217,31 @@ function checkForm() {
 // *********** VALIDATION DE LA COMMANDE ***********
 
 // Création d'un tableau contenant que les 'id' des produits commandés
-function creationCommandeId(panier) {
-    const produitsPanierId = [];
+let produitsPanierId = [];
 
+function creationCommandeId() {
     for(produit of panier){
         produitsPanierId.push(produit._id)
     }
     return produitsPanierId;
 }
-console.log(creationCommandeId(panier));
 
 // Création d'un objet contenat les produits séléctionnés et les valeurs 
 // du formulaire pour les envoyer au serveur
-function infosVersServer(produitsPanierId) {
-    return  {
-     //Création objet a partir des valeurs du formulaire
-        contact: {
+function infosVersServer() {
+    let infosOrder = {
+        //Création objet a partir des valeurs du formulaire
+        contact : {
             firstName : firstName.value,
             lastName : lastName.value,
             address : address.value,
             city : city.value,
             email : email.value
         },
-        products : produitsPanierId
-    }       
+        products : produitsPanierId      
+    } 
+    return infosOrder;   
 }
-
 
 //*********  Soumission du formulaire ********* 
 let formSubmit = document.querySelector("#order");
@@ -247,12 +249,12 @@ let formSubmit = document.querySelector("#order");
 formSubmit.addEventListener('click', (e) => {
     e.preventDefault();
 
-    const produitsPanierId = creationCommandeId(panier)
-    const infosServer = infosVersServer(produitsPanierId);
+    const listeProduitsId = creationCommandeId();
+    const infosServer = infosVersServer();
     const formulaireValid = checkForm();
-  
-    console.log(formulaireValid);
-  
+    console.log(listeProduitsId);
+    console.log(infosServer);
+    
  //Envoie des informatios à l'API 
     if(formulaireValid != true) {
         alert(formulaireValid);
@@ -277,8 +279,7 @@ formSubmit.addEventListener('click', (e) => {
         })
         // Reinitialiser localStorage et rediriger vers confirmation.html
         .then( data => {  
-            document.location.href = `confirmation.html?orderId=${data.orderId}`;                         
-            console.log(data.orderId);            
+            document.location.href = `confirmation.html?orderId=${data.orderId}`;                                   
             localStorage.clear();                                                 
         })
         .catch( error => {

@@ -6,7 +6,7 @@ const paramID = urlParams.get("id");
 
 let tabInfoProduit = [];
 
-// appel API pour récupérer les donnes du produit choisi 
+// appel API pour récupérer les donnes de l'article choisi 
 function afficherProduit() {
     fetch(`http://localhost:3000/api/products/${paramID}`)
     .then((reponse) => {
@@ -16,11 +16,10 @@ function afficherProduit() {
     })
 
     // affichage des informations du produit récupéré
-    .then((infoProduct) => {
-
+    .then((infoProduct) => {      
         //récupération dans le tableau les infos retournées par l'API
         tabInfoProduit = infoProduct;
-        // console.log(tabInfoProduit);
+        console.log(tabInfoProduit);
 
         // Affichage du prodiut choisi
         const divImage = document.querySelector(".item__img");
@@ -29,10 +28,8 @@ function afficherProduit() {
         document.querySelector('#price').textContent = `${tabInfoProduit.price}`;
         document.querySelector('#description').textContent = `${tabInfoProduit.description}`;
 
-        // console.log(tabInfoProduit.colors);
-
         const optionsCouleur = tabInfoProduit.colors.map((couleur) => {
-            // console.log(couleur);
+            
             return `<option value="${couleur}">${couleur}</option>`;
         });
 
@@ -72,9 +69,6 @@ btnAjout.addEventListener('click', () => {
         }
     } 
 });
-
-//variable qui va récupérer le contenu du 'localStorage' 
-// let tabProduitsChoisis = JSON.parse(localStorage.getItem("produit"));
 
 // function enregistrant le panier dans localStorage
 function savePanier(panier){
@@ -120,11 +114,10 @@ function ajoutProduit() {
                 articlesPanier[i].couleur === selectCouleur.value) {
 
                 return (           
-                    articlesPanier[i].quantite++,    //on increment la quantité                    
+                    articlesPanier[i].quantite++,    //on increment que la quantité                    
                    //Mise a jour de LocalStorage (avec 2 valeurs en plus)
                     savePanier(articlesPanier),
                     //et on récupère le nouveau tableau mit a jour 
-                    // tabProduitsChoisis = JSON.parse(localStorage.getItem("produit"))
                     articlesPanier = getPanier()
                 );
             }
@@ -136,8 +129,7 @@ function ajoutProduit() {
                 articlesPanier[i].couleur != selectCouleur.value ||
                 articlesPanier[i]._id != tabInfoProduit._id) {
 
-                return (
-                  
+                return (                  
                     //on va rajouter le nouveau produit, d'une autre couleur, dans la liste
                     articlesPanier.push(choixProduit),
                     //et on va mettre a jour le Local Storage 
