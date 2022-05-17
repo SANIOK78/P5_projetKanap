@@ -187,18 +187,20 @@ function formVerify(){
 }
 formVerify();
 
-// function permetant de verifier si le formulaire est rempli a la soumission
+// function permetant de verifier si le formulaire est rempli avant la soumission
 function checkForm() {
-    if(!verifMail(email.value)){
-        return "Email format non valide (ex: toto@mail.dev)";
-    } 
+  
     if(!verifNomPrenomVille(firstName.value) || !verifNomPrenomVille(lastName.value) || !verifNomPrenomVille(city.value)){
-        return "Chiffre et symbole non autorisé, entre 3 - 20 lettres";
+        return "Renseignez les champs: 'Prénome', 'Nom' et 'Ville' !";
     }
    
     if(!verifAdresse(address.value)){
-        return  "L'adresse doit contenir que des lettres et des chiffres, sans ponctuation et caractères spéciaux";
+        return  "Renseignez le champ 'Adresse' !";
     }
+
+    if(!verifMail(email.value)){
+        return "Renseignez le champ 'Email' ! ";
+    } 
 
     return true;
 }
