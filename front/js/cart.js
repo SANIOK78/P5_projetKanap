@@ -71,16 +71,14 @@ function modifierQuantite() {
 function suppressionProduit() {
     let supprimProdiut = document.querySelectorAll(".deleteItem");
     // console.log(panier);
-    console.log(supprimProdiut);
+    // console.log(supprimProdiut);
 
     supprimProdiut.forEach((input, index) => {
 
-        input.addEventListener("click", () => {
-            confirm("Voulez-vous vraiment supprimer ce produit ?"),
+        input.addEventListener("click", () => {       
             panier.splice(index, 1);   
-
             localStorage.setItem("produit", JSON.stringify(panier));            
-            initPanier();                         
+            initPanier();                                                                        
         });                
     });     
 } 
@@ -191,7 +189,7 @@ formVerify();
 function checkForm() {
   
     if(!verifNomPrenomVille(firstName.value) || !verifNomPrenomVille(lastName.value) || !verifNomPrenomVille(city.value)){
-        return "Renseignez les champs: 'Prénome', 'Nom' et 'Ville' !";
+        return "Renseignez les champs: 'Prénom', 'Nom' et 'Ville' !";
     }
    
     if(!verifAdresse(address.value)){
