@@ -1,67 +1,98 @@
-// Récuperation des donées dans localStorage
+// Récuperation des donées de localStorage
 let panier = JSON.parse(localStorage.getItem("produit"));
 
-console.log(panier);
-
-// ********** Gestion du panier ************
 let totalQuantity = document.querySelector("#totalQuantity");
 let totalPrice = document.querySelector("#totalPrice");
 let produitPanier = document.querySelector("#cart__items");
+let firstName = document.querySelector("#firstName");
+let lastName = document.querySelector("#lastName");
+let address = document.querySelector("#address");
+let city = document.querySelector("#city");
+let email = document.querySelector("#email");
 
-function afficherPanier() {
+// ********** Gestion du panier ************
 
-    if(panier){       
-        //Déclaration des variables permettant de mettre a jour la quantité et le prix total   
-        let nbProduit = 0;
-        let totalPrix = 0;
+// function permettant d'afficher les produit du panier
+function affichageProduits() {
 
-        const html = panier.map(product => {
-            
-            nbProduit = nbProduit + parseInt(product.quantite);
-            totalPrix = totalPrix + (parseInt(product.quantite) * parseInt(product.price));
+    //Déclaration des variables permettant de mettre a jour la quantité et le prix total   
+    let nbProduit = 0;
+    let totalPrix = 0;
 
-            return `<article class="cart__item" data-id="${product._id}" data-color="${product.colors}">
-                        <div class="cart__item__img">
-                            <img src="${product.imageUrl}" alt="${product.description}">
+    let html = panier.map(produit => {
+        nbProduit = nbProduit + parseInt(produit.quantite);
+        totalPrix = totalPrix + (parseInt(produit.quantite) * parseInt(produit.price));
+
+        return `                
+            <article class="cart__item" data-id="${produit._id}" data-color="${produit.couleur}">
+                <div class="cart__item__img">
+                    <img src="${produit.imageUrl}" alt="${produit.altTxt}">
+                </div>
+                <div class="cart__item__content">
+                    <div class="cart__item__content__description">
+                        <h2>${produit.name}</h2>
+                        <p>${produit.couleur}</p>
+                        <p>${produit.price} €</p>
+                    </div>
+                    <div class="cart__item__content__settings">
+                        <div class="cart__item__content__settings__quantity">
+                            <p>Qté : </p>
+                            <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${produit.quantite}">
                         </div>
-                        <div class="cart__item__content">
-                            <div class="cart__item__content__description">
-                                <h2>${product.name}</h2>
-                                <p>${product.couleur}</p>
-                                <p>Prix : ${product.price} €</p>
-                            </div>
-                            <div class="cart__item__content__settings">
-                                <div class="cart__item__content__settings__quantity">
-                                    <p>Qté : </p>
-                                    <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${product.quantite}">
-                                </div>
-                                <div class="cart__item__content__settings__delete">
-                                    <p class="deleteItem">Supprimer<p>
-                                </div>
-                            </div>
-                        </div>   
-                    </article>`  
-                    
-        });
-        produitPanier.innerHTML = html.join("");
-        totalQuantity.textContent = nbProduit;
-        totalPrice.textContent = totalPrix;              
-    } 
+                        <div class="cart__item__content__settings__delete">
+                            <p class="deleteItem">Supprimer</p>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        `
+    })      
+    produitPanier.innerHTML = html.join(""); 
+    totalQuantity.textContent = nbProduit;
+    totalPrice.textContent = totalPrix;                      
 }
-// afficherPanier();
+// affichageProduits(produit);
+
+// affichage du panier
+function afficherPanier(){
+
+    if(panier){
+        for(let produit of panier) {
+    
+          // requête http vers API du produit choisi pour récuperer les infos
+            fetch(`http://localhost:3000/api/products/${produit._id}`)
+            .then((reponse) => {
+                if(reponse.ok){
+                    return reponse.json();
+                }    
+            })
+            .then(data => {         
+                produit.name = data.name
+                produit.price = data.price
+                produit.imageUrl = data.imageUrl
+                produit.altTxt = data.altTxt 
+                affichageProduits();
+                initPanier();               
+            })
+            .catch((erreur) => {
+                console.log(erreur);                
+            });
+        }
+    }   
+}
+afficherPanier()
 
 // fonction permettant de modifier dynamiquement un produit directement dans le Panier
 function modifierQuantite() {
     const quantites = document.querySelectorAll("input[name='itemQuantity']");
-    console.log(quantites);
+    // console.log(quantites);
 
     quantites.forEach((input, index) => {
        
         input.addEventListener("change", function(event) { 
-
             panier[index].quantite = event.target.value;
             localStorage.setItem("produit", JSON.stringify(panier));
-           
+            
             initPanier();                              
         });  
     });     
@@ -69,13 +100,11 @@ function modifierQuantite() {
 
 // fonction permetant la suppression d'un produit
 function suppressionProduit() {
-    let supprimProdiut = document.querySelectorAll(".deleteItem");
-    // console.log(panier);
-    console.log(supprimProdiut);
+    let supprimProduit = document.querySelectorAll(".deleteItem");
+    
+    supprimProduit.forEach((input, index) => {
 
-    supprimProdiut.forEach((input, index) => {
-
-        input.addEventListener("click", () => { 
+        input.addEventListener("click", () => {            
             panier.splice(index, 1); 
 
             if(panier.length != 0) {                
@@ -91,27 +120,19 @@ function suppressionProduit() {
 } 
 
 // fonction permetant de mettre a jour le panier 
-function initPanier() {
-    afficherPanier();
+function initPanier() {  
+    affichageProduits();
     modifierQuantite();
     suppressionProduit();
 }
 initPanier();
 
-// ---------- FIN Gestion du panier ----------
 
 // *********** Gestion Validation du formulaire *********
 
-let firstName = document.querySelector("#firstName");
-let lastName = document.querySelector("#lastName");
-let address = document.querySelector("#address");
-let city = document.querySelector("#city");
-let email = document.querySelector("#email");
-
-
 // function permettant verifier Prenom, Nom, Ville
 function verifNomPrenomVille(valeur) {
-    return /^[A-Za-z-\s]{3,30}$/.test(valeur);
+    return /^[A-Z]{1}[A-Za-z- ]{1,20}$/.test(valeur);
 };
 
 // function permettant verifier l'email
@@ -124,17 +145,16 @@ function verifAdresse(adresse) {
     return /^[A-Za-z0-9-\s]{5,50}$/.test(adresse);
 };
 
-function formVerify(){
-    // validation champ 'prenom'
+// fonction permettant de verifier la validation des champs formulaire
+function formVerify(){  
+    // validation champ 'prénom'
     firstName.addEventListener('change', () => {
         const prenomResultat = document.querySelector("#firstNameErrorMsg");
-        //tester si la valeur de 'prenom' contient que des lettres, 
-        // la taille de 3 - 20 caractères, pas des chiffres et syboles speciaux
         if(verifNomPrenomVille(firstName.value)){
             prenomResultat.innerHTML = "";
             return true; 
         } else {            
-            prenomResultat.innerHTML = "Chiffre et symbole non autorisé, entre 3 - 20 lettres";
+            prenomResultat.innerHTML = "Pas d'espace au début, pas des caractères spéciaux (ex: Matthieu; Jean Marie)";
             return false;
         }      
     });
@@ -146,7 +166,7 @@ function formVerify(){
             nomResultat.innerHTML = "";  
             return true;             
         } else {            
-            nomResultat.innerHTML = "Chiffre et symbole non autorisé, entre 3 - 20 lettres";
+            nomResultat.innerHTML = "Pas d'espace au début, pas des caractères spéciaux (ex: Jean-Marie; Lerouge)";
             return false;
         }
     });
@@ -172,7 +192,7 @@ function formVerify(){
             villeResultat.innerHTML = "";
             return true;               
         } else {            
-            villeResultat.innerHTML = "Chiffre et symbole non autorisé, entre 3 - 20 lettres";
+            villeResultat.innerHTML = "Pas d'espace au début, pas des caractères spéciaux (ex: Cergy Pontoise";
             return false;
         }
     });
@@ -197,9 +217,9 @@ function checkForm() {
   
     if(!verifNomPrenomVille(firstName.value) || 
         !verifNomPrenomVille(lastName.value) || 
-        !verifNomPrenomVille(city.value)){
+        !verifNomPrenomVille(city.value)) {
 
-        return "Renseignez les champs: 'Prénom', 'Nom' et 'Ville' !";
+        return "Renseignez tous les champs du formulaire!";
     }
    
     if(!verifAdresse(address.value)){
@@ -213,8 +233,6 @@ function checkForm() {
     return true;
 }
 // --------- fin Gestion Validation du formulaire -----------
-
-// *********** VALIDATION DE LA COMMANDE ***********
 
 // Création d'un tableau contenant que les 'id' des produits commandés
 let produitsPanierId = [];
@@ -252,10 +270,8 @@ formSubmit.addEventListener('click', (e) => {
     const listeProduitsId = creationCommandeId();
     const infosServer = infosVersServer();
     const formulaireValid = checkForm();
-    console.log(listeProduitsId);
-    console.log(infosServer);
-    
- //Envoie des informatios à l'API 
+      
+  //Envoie des informatios à l'API 
     if(formulaireValid != true) {
         alert(formulaireValid);
 
@@ -268,7 +284,7 @@ formSubmit.addEventListener('click', (e) => {
             method: "POST",
             body: JSON.stringify(infosServer),
             headers: {
-                // "Accept" :  "application/json",
+                "Accept" :  "application/json",
                 "Content-Type": "application/json"
             },
         })  
@@ -284,11 +300,9 @@ formSubmit.addEventListener('click', (e) => {
         })
         .catch( error => {
             console.log(error.message);
-        })
-    }  
+        });
+    };  
 });
 
 //  ---------------- FIN Soumition du formulaire ----------------
  
-
-
